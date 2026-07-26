@@ -1,6 +1,8 @@
+"use client";
+
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { PageLayout } from "@/components/layout/PageLayout";
-import Link from "next/link";
+import { useIcp } from "@/context/IcpContext";
 import { BookOpen, Award, Star, Bell, Wallet, Settings, User, Bookmark } from "lucide-react";
 
 const DASHBOARD_SECTIONS = [
@@ -15,6 +17,8 @@ const DASHBOARD_SECTIONS = [
 ];
 
 export default function DashboardPage() {
+  const { isAuthenticated, isLoading, principal, status } = useIcp();
+
   return (
     <ProtectedRoute>
       <PageLayout>
@@ -27,6 +31,29 @@ export default function DashboardPage() {
         <div className="rounded-2xl border border-brand-gold/20 bg-brand-gold/5 p-6 mb-8">
           <h2 className="font-display text-base font-semibold text-brand-white mb-1">📅 Dashboard activates at Milestone 2</h2>
           <p className="text-sm text-brand-muted">Course progress, certificates, and profile features require the Academy (Milestone 2) and Certificate system (Milestone 3) to be complete. The UI is fully built and waiting for backend integration at Milestone 5 (ICP canisters).</p>
+        </div>
+
+        <div className="mb-8 rounded-2xl border border-brand-border bg-brand-card/80 p-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="font-display text-base font-semibold text-brand-white">Internet Identity</h2>
+              <p className="text-sm text-brand-muted">
+                {isLoading
+                  ? "Checking saved session..."
+                  : isAuthenticated
+                    ? "Your Internet Identity session is active."
+                    : "Connect your identity to unlock ICP features."}
+              </p>
+            </div>
+            <div className="rounded-full border border-brand-border bg-brand-black/60 px-3 py-1 text-sm text-brand-muted">
+              Status: <span className="ml-1 font-medium capitalize text-brand-white">{status}</span>
+            </div>
+          </div>
+
+          <div className="mt-4 rounded-xl border border-brand-border bg-brand-black/50 p-4 text-sm text-brand-muted">
+            <p className="font-medium text-brand-white">Principal</p>
+            <p className="mt-1 break-all">{principal ?? "Not connected yet"}</p>
+          </div>
         </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {DASHBOARD_SECTIONS.map(({ icon: Icon, title, desc }) => (

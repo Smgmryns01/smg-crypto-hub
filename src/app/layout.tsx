@@ -3,6 +3,7 @@ import { Inter, Sora, JetBrains_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 import { QueryProvider } from "@/providers/QueryProvider";
 import { AuthProvider } from "@/context/AuthContext";
+import { IcpProvider } from "@/context/IcpContext";
 import "./globals.css";
 import { SITE } from "@/constants/site";
 
@@ -107,7 +108,9 @@ export default function RootLayout({
         className={`${inter.variable} ${sora.variable} ${jetbrainsMono.variable} font-body bg-brand-black text-brand-white`}
       >
         <QueryProvider>
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            <IcpProvider>{children}</IcpProvider>
+          </AuthProvider>
         </QueryProvider>
         <Toaster
           theme="dark"

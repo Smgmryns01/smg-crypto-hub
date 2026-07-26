@@ -110,12 +110,14 @@ export async function getIdentity(): Promise<WebAuthnIdentity | null> {
   }
 }
 
-export async function getPrincipal() {
+export async function getPrincipal(): Promise<string | null> {
   const identity = await getIdentity();
 
   if (!identity?.getPrincipal) {
     return null;
   }
 
-  return identity.getPrincipal();
+  const principal = identity.getPrincipal();
+
+  return principal ? principal.toString() : null;
 }
