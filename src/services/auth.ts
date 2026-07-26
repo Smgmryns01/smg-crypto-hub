@@ -59,6 +59,36 @@ export async function register(
   };
 }
 
+// Refresh Session
+export async function refreshSession(): Promise<AuthResult<AuthSession>> {
+  const response = await fetchApi<{ success: boolean; data?: { token?: string; accessToken?: string; expiresAt?: string; refreshToken?: string | null; user?: User | null } }>('/api/auth/refresh', {
+    method: 'POST',
+  });
+
+  if (!response.data?.data) {
+    clearSession();
+
+    return {
+      success: false,
+      error: response.error ?? 'Session refresh failed',
+    };
+  }
+
+  const refreshedSession: AuthSession = {
+    user: response.data.data.user ?? null,
+    accessToken: response.data.data.accessToken ?? response.data.data.token ?? null,
+    refreshToken: response.data.data.refreshToken ?? null,
+    expiresAt: response.data.data.expiresAt ?? new Date().toISOString(),
+  };
+
+  saveSession(refreshedSession);
+
+  return {
+    success: true,
+    data: refreshedSession,
+  };
+}
+
 // Logout
 export function logout(): void {
   clearSession();
