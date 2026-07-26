@@ -3,7 +3,7 @@ import type { ApiResponse, CryptoAsset } from "@/types";
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://smgcryptohub.xyz";
 
 // ── Generic fetch wrapper ────────────────────────────────────────────────────
-async function fetchApi<T>(
+export async function fetchApi<T>(
   endpoint: string,
   options?: RequestInit
 ): Promise<ApiResponse<T>> {

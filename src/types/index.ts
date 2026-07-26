@@ -151,3 +151,61 @@ export interface ApiResponse<T> {
   error: string | null;
   status: number;
 }
+// ─── Authentication Types ────────────────────────────────────────────────────
+
+export type UserRole =
+  | "student"
+  | "mentor"
+  | "admin"
+  | "founder";
+
+export type AuthProvider =
+  | "email"
+  | "internet-identity"
+  | "plug"
+  | "nfid"
+  | "oisy";
+
+export interface User {
+  id: string;
+  email: string;
+  username: string;
+  fullName: string;
+  avatar?: string;
+
+  role: UserRole;
+
+  emailVerified: boolean;
+  onChainVerified: boolean;
+
+  authProvider: AuthProvider;
+
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+export interface RegisterData {
+  fullName: string;
+  username: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+}
+
+export interface AuthSession {
+  user: User | null;
+  accessToken: string | null;
+  refreshToken?: string | null;
+  expiresAt?: string;
+}
+
+export interface AuthResult<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
+}
