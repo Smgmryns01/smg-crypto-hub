@@ -35,12 +35,31 @@ export function getSession(): AuthSession | null {
 
       const parsed = JSON.parse(session);
 
-      if (!parsed || typeof parsed !== "object") {
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
         storage.removeItem(SESSION_KEY);
         continue;
       }
 
-      return parsed as AuthSession;
+      const candidateSession = parsed as Partial<AuthSession> & {
+        expiresAt?: string;
+      };
+
+      if (typeof candidateSession.expiresAt !== "string") {
+        return candidateSession as AuthSession;
+      }
+
+      const expiresAt = new Date(candidateSession.expiresAt);
+
+      if (Number.isNaN(expiresAt.getTime())) {
+        return candidateSession as AuthSession;
+      }
+
+      if (expiresAt.getTime() <= Date.now()) {
+        storage.removeItem(SESSION_KEY);
+        continue;
+      }
+
+      return candidateSession as AuthSession;
     } catch {
       storage.removeItem(SESSION_KEY);
     }

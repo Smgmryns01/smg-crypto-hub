@@ -202,7 +202,7 @@ export interface AuthSession {
   user: User | null;
   accessToken: string | null;
   refreshToken?: string | null;
-  expiresAt?: string;
+  expiresAt: string;
 }
 
 export interface AuthResult<T> {

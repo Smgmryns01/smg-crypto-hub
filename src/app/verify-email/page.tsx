@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/Button";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
@@ -15,6 +16,7 @@ export default function VerifyEmailPage() {
 
   const [status, setStatus] = useState<VerificationState>("loading");
   const [message, setMessage] = useState("Verifying your email address...");
+  const [isResending, setIsResending] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -66,6 +68,33 @@ export default function VerifyEmailPage() {
     };
   }, [token]);
 
+  async function handleResendVerification() {
+    setIsResending(true);
+
+    try {
+      const response = await fetch("/api/auth/resend-verification", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ token }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.message) {
+        toast.success(data.message);
+        return;
+      }
+
+      toast.error("Unable to send verification email.");
+    } catch {
+      toast.error("Unable to send verification email.");
+    } finally {
+      setIsResending(false);
+    }
+  }
+
   return (
     <main className="flex min-h-screen items-center justify-center bg-brand-black px-6">
       <div className="w-full max-w-md rounded-2xl border border-brand-border bg-brand-card p-8 shadow-card">
@@ -99,9 +128,20 @@ export default function VerifyEmailPage() {
               </p>
             </div>
 
-            <Button onClick={() => router.push("/login")} className="w-full">
-              Continue to Login
-            </Button>
+            <div className="space-y-3">
+              <Button
+                variant="secondary"
+                onClick={handleResendVerification}
+                disabled={isResending}
+                className="w-full"
+              >
+                {isResending ? "Sending..." : "Resend Verification Email"}
+              </Button>
+
+              <Button onClick={() => router.push("/login")} className="w-full">
+                Continue to Login
+              </Button>
+            </div>
           </div>
         )}
 
@@ -114,13 +154,24 @@ export default function VerifyEmailPage() {
               <p className="mt-2 text-sm text-brand-muted">{message}</p>
             </div>
 
-            <Button
-              variant="secondary"
-              onClick={() => router.push("/login")}
-              className="w-full"
-            >
-              Back to Login
-            </Button>
+            <div className="space-y-3">
+              <Button
+                variant="secondary"
+                onClick={handleResendVerification}
+                disabled={isResending}
+                className="w-full"
+              >
+                {isResending ? "Sending..." : "Resend Verification Email"}
+              </Button>
+
+              <Button
+                variant="secondary"
+                onClick={() => router.push("/login")}
+                className="w-full"
+              >
+                Back to Login
+              </Button>
+            </div>
           </div>
         )}
       </div>
