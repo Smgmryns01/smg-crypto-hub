@@ -195,6 +195,7 @@ export interface RegisterData {
   email: string;
   password: string;
   confirmPassword: string;
+  termsAccepted: boolean;
 }
 
 export interface AuthSession {
