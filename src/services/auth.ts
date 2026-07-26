@@ -9,9 +9,11 @@ import type {
   User,
 } from "@/types";
 
+type LoginRequest = LoginCredentials & { rememberMe?: boolean };
+
 // Login
 export async function login(
-  credentials: LoginCredentials
+  credentials: LoginRequest
 ): Promise<AuthResult<AuthSession>> {
   const response = await fetchApi<AuthSession>("/api/auth/login", {
     method: "POST",
@@ -25,7 +27,7 @@ export async function login(
     };
   }
 
-  saveSession(response.data);
+  saveSession(response.data, credentials.rememberMe);
 
   return {
     success: true,

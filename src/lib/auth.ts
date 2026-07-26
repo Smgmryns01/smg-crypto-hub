@@ -2,30 +2,62 @@ import type { AuthSession, User } from "@/types";
 
 const SESSION_KEY = "smg_auth_session";
 
-export function saveSession(session: AuthSession): void {
+function getStorage(rememberMe?: boolean): Storage | null {
+  if (typeof window === "undefined") return null;
+
+  return rememberMe ? window.localStorage : window.sessionStorage;
+}
+
+export function saveSession(session: AuthSession, rememberMe?: boolean): void {
   if (typeof window === "undefined") return;
 
-  localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+  const storage = getStorage(rememberMe);
+
+  if (!storage) return;
+
+  try {
+    storage.setItem(SESSION_KEY, JSON.stringify(session));
+  } catch {
+    return;
+  }
 }
 
 export function getSession(): AuthSession | null {
   if (typeof window === "undefined") return null;
 
-  const session = localStorage.getItem(SESSION_KEY);
+  const storages = [window.localStorage, window.sessionStorage];
 
-  if (!session) return null;
+  for (const storage of storages) {
+    try {
+      const session = storage.getItem(SESSION_KEY);
 
-  try {
-    return JSON.parse(session) as AuthSession;
-  } catch {
-    return null;
+      if (!session) continue;
+
+      const parsed = JSON.parse(session);
+
+      if (!parsed || typeof parsed !== "object") {
+        storage.removeItem(SESSION_KEY);
+        continue;
+      }
+
+      return parsed as AuthSession;
+    } catch {
+      storage.removeItem(SESSION_KEY);
+    }
   }
+
+  return null;
 }
 
 export function clearSession(): void {
   if (typeof window === "undefined") return;
 
-  localStorage.removeItem(SESSION_KEY);
+  try {
+    window.localStorage.removeItem(SESSION_KEY);
+    window.sessionStorage.removeItem(SESSION_KEY);
+  } catch {
+    return;
+  }
 }
 
 export function getCurrentUser(): User | null {
@@ -33,5 +65,5 @@ export function getCurrentUser(): User | null {
 }
 
 export function isAuthenticated(): boolean {
-  return getCurrentUser() !== null;
+  return Boolean(getSession()?.user);
 }

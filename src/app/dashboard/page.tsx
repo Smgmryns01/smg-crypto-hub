@@ -1,3 +1,4 @@
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { PageLayout } from "@/components/layout/PageLayout";
 import Link from "next/link";
 import { BookOpen, Award, Star, Bell, Wallet, Settings, User, Bookmark } from "lucide-react";
@@ -15,9 +16,10 @@ const DASHBOARD_SECTIONS = [
 
 export default function DashboardPage() {
   return (
-    <PageLayout>
-      <div className="pt-24 pb-20 px-4"><div className="container-wide">
-        <div className="mb-10">
+    <ProtectedRoute>
+      <PageLayout>
+        <div className="pt-24 pb-20 px-4"><div className="container-wide">
+          <div className="mb-10">
           <div className="badge-blue mb-4 w-fit">Dashboard</div>
           <h1 className="font-display text-display-md font-extrabold text-brand-white">Learning <span className="gradient-text">Dashboard</span></h1>
           <p className="mt-3 text-brand-muted">Your personal learning hub — courses, certificates, achievements, and wallet.</p>
@@ -36,7 +38,8 @@ export default function DashboardPage() {
             </div>
           ))}
         </div>
-      </div></div>
-    </PageLayout>
+        </div></div>
+      </PageLayout>
+    </ProtectedRoute>
   );
 }

@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/Label";
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address."),
   password: z.string().min(8, "Password must be at least 8 characters."),
+  rememberMe: z.boolean().default(false),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
@@ -71,6 +72,17 @@ export default function LoginForm() {
         )}
       </div>
 
+      <div className="space-y-2">
+        <label className="flex items-center gap-3 text-sm text-white">
+          <input
+            type="checkbox"
+            className="h-4 w-4 rounded border-brand-border bg-brand-card text-brand-blue focus:ring-brand-blue"
+            {...register("rememberMe")}
+          />
+          <span>Remember Me</span>
+        </label>
+      </div>
+
       <Button
         type="submit"
         className="w-full"
@@ -78,6 +90,12 @@ export default function LoginForm() {
       >
         {isSubmitting ? "Signing in..." : "Sign In"}
       </Button>
+
+      <div className="text-center">
+        <a href="/forgot-password" className="text-sm text-brand-blue hover:text-brand-blue-deep">
+          Forgot your password?
+        </a>
+      </div>
     </form>
   );
 }

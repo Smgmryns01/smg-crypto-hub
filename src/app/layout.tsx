@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Sora, JetBrains_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 import { QueryProvider } from "@/providers/QueryProvider";
+import { AuthProvider } from "@/context/AuthContext";
 import "./globals.css";
 import { SITE } from "@/constants/site";
 
@@ -106,7 +107,7 @@ export default function RootLayout({
         className={`${inter.variable} ${sora.variable} ${jetbrainsMono.variable} font-body bg-brand-black text-brand-white`}
       >
         <QueryProvider>
-          {children}
+          <AuthProvider>{children}</AuthProvider>
         </QueryProvider>
         <Toaster
           theme="dark"
