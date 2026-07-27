@@ -25,7 +25,10 @@
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "dfx:start": "dfx start --background --clean",
+    "dfx:deploy": "dfx deploy backend",
+    "generate": "dfx generate backend"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",

@@ -36,6 +36,11 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# dfx / ICP
+.dfx/
+dist/
+canister_ids.json
+
 # editors
 .idea/
 .vscode/

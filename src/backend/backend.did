@@ -1,0 +1,34 @@
+type Role = variant {
+  Student;
+  Mentor;
+  Admin;
+};
+
+type User = record {
+  principal : principal;
+  username : text;
+  email : text;
+  role : Role;
+  emailVerified : bool;
+  createdAt : int;
+  updatedAt : int;
+};
+
+type UserResult = variant {
+  ok : User;
+  err : text;
+};
+
+service : {
+  health: () -> (text) query;
+  version: () -> (text) query;
+  registerUser: (text, text) -> (UserResult);
+  getMyProfile: () -> (UserResult) query;
+  updateProfile: (text) -> (UserResult);
+  userExists: () -> (bool) query;
+  verifyEmail: () -> (UserResult);
+  listUsers: () -> (vec User);
+  getUser: (principal) -> (UserResult);
+  changeUserRole: (principal, Role) -> (UserResult);
+  deleteUser: (principal) -> (UserResult);
+}
