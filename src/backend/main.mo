@@ -1,3 +1,4 @@
+import Courses "./courses";
 import Principal "mo:base/Principal";
 import Time "mo:base/Time";
 import TrieMap "mo:base/TrieMap";
@@ -121,4 +122,17 @@ persistent actor Backend {
       case (#err(_)) { #err("Admin access required") }
     }
   };
+
+  public query func getCourses() : async [Types.Course] {
+    Courses.getCourses()
+  };
+
+  public query func getCourse(id : Text) : async ?Types.Course {
+    Courses.getCourse(id)
+  };
+
+  public query func getFeaturedCourses() : async [Types.Course] {
+    Courses.getFeaturedCourses()
+  };
+
 }

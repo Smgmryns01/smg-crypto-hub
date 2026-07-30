@@ -67,5 +67,38 @@ module {
       createdAt = user.createdAt;
       updatedAt = user.updatedAt;
     }
+  }; 
+
+ public type CourseLevel = {
+    #Beginner;
+    #Intermediate;
+    #Advanced;
   };
+
+  public type CourseCategory = {
+    #CryptoBasics;
+    #Blockchain;
+    #ICPDevelopment;
+    #DeFi;
+    #NFT;
+    #Security;
+    #Web3;
+  };
+
+  public type Course = {
+    id : Text;
+    title : Text;
+    description : Text;
+    instructor : Text;
+    thumbnail : Text;
+    duration : Nat;
+    lessons : Nat;
+    featured : Bool;
+    published : Bool;
+    level : CourseLevel;
+    category : CourseCategory;
+    createdAt : Int;
+    updatedAt : Int;
+  };
+  
 }

@@ -2,6 +2,31 @@ import type { Principal } from '@icp-sdk/core/principal';
 import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 
+export interface Course {
+  'id' : string,
+  'title' : string,
+  'featured' : boolean,
+  'duration' : bigint,
+  'thumbnail' : string,
+  'instructor' : string,
+  'published' : boolean,
+  'createdAt' : bigint,
+  'description' : string,
+  'lessons' : bigint,
+  'level' : CourseLevel,
+  'updatedAt' : bigint,
+  'category' : CourseCategory,
+}
+export type CourseCategory = { 'NFT' : null } |
+  { 'DeFi' : null } |
+  { 'Security' : null } |
+  { 'Web3' : null } |
+  { 'CryptoBasics' : null } |
+  { 'Blockchain' : null } |
+  { 'ICPDevelopment' : null };
+export type CourseLevel = { 'Beginner' : null } |
+  { 'Advanced' : null } |
+  { 'Intermediate' : null };
 export type Principal = Principal;
 export type Role = { 'Mentor' : null } |
   { 'Student' : null } |
@@ -20,6 +45,9 @@ export type UserResult = { 'ok' : User } |
 export interface _SERVICE {
   'changeUserRole' : ActorMethod<[Principal, Role], UserResult>,
   'deleteUser' : ActorMethod<[Principal], UserResult>,
+  'getCourse' : ActorMethod<[string], [] | [Course]>,
+  'getCourses' : ActorMethod<[], Array<Course>>,
+  'getFeaturedCourses' : ActorMethod<[], Array<Course>>,
   'getMyProfile' : ActorMethod<[], UserResult>,
   'getUser' : ActorMethod<[Principal], UserResult>,
   'health' : ActorMethod<[], string>,

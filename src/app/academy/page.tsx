@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Search, Filter } from "lucide-react";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { CourseCard } from "@/components/ui/CourseCard";
-import { COURSES } from "@/data";
+import { getCourses } from "@/lib/services/course.service";
 import type { CourseLevel, CourseCategory } from "@/types";
 import { cn } from "@/lib/utils";
 
@@ -30,19 +30,52 @@ export default function AcademyPage() {
   const [search, setSearch] = useState("");
   const [level, setLevel] = useState<CourseLevel | "all">("all");
   const [category, setCategory] = useState<CourseCategory | "all">("all");
+  const [courses, setCourses] = useState<any[]>([]);
+const [loading, setLoading] = useState(true);
 
-  const filtered = useMemo(() => {
-    return COURSES.filter((course) => {
-      const matchSearch =
-        search === "" ||
-        course.title.toLowerCase().includes(search.toLowerCase()) ||
-        course.description.toLowerCase().includes(search.toLowerCase()) ||
-        course.tags.some((t) => t.toLowerCase().includes(search.toLowerCase()));
-      const matchLevel = level === "all" || course.level === level;
-      const matchCategory = category === "all" || course.category === category;
-      return matchSearch && matchLevel && matchCategory;
-    });
-  }, [search, level, category]);
+ useEffect(() => {
+  async function loadCourses() {
+    try {
+      const data = await getCourses();
+      setCourses(data);
+    } catch (error) {
+      console.error("Failed to load courses:", error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  loadCourses();
+}, []);
+
+const filtered = useMemo(() => {
+  return courses.filter((course) => {
+    const matchSearch =
+      search === "" ||
+      course.title.toLowerCase().includes(search.toLowerCase()) ||
+      course.description.toLowerCase().includes(search.toLowerCase());
+
+    const matchLevel =
+      level === "all" || course.level === level;
+
+    const matchCategory =
+      category === "all" || course.category === category;
+
+    return matchSearch && matchLevel && matchCategory;
+  });
+}, [courses, search, level, category]);
+
+if (loading) {
+  return (
+    <PageLayout>
+      <div className="pt-24 text-center">
+        <h2 className="text-xl text-brand-white">
+          Loading courses...
+        </h2>
+      </div>
+    </PageLayout>
+  );
+}
 
   return (
     <PageLayout>
@@ -123,6 +156,7 @@ export default function AcademyPage() {
               ))}
             </div>
           </div>
+
 
           {/* Results count */}
           <p className="text-sm text-brand-muted mb-6" aria-live="polite">

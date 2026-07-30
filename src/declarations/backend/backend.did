@@ -20,9 +20,44 @@ type Role =
    Student;
  };
 type Principal = principal;
+type CourseLevel = 
+ variant {
+   Advanced;
+   Beginner;
+   Intermediate;
+ };
+type CourseCategory = 
+ variant {
+   Blockchain;
+   CryptoBasics;
+   DeFi;
+   ICPDevelopment;
+   NFT;
+   Security;
+   Web3;
+ };
+type Course = 
+ record {
+   category: CourseCategory;
+   createdAt: int;
+   description: text;
+   duration: nat;
+   featured: bool;
+   id: text;
+   instructor: text;
+   lessons: nat;
+   level: CourseLevel;
+   published: bool;
+   thumbnail: text;
+   title: text;
+   updatedAt: int;
+ };
 service : {
   changeUserRole: ("principal": Principal, role: Role) -> (UserResult);
   deleteUser: ("principal": Principal) -> (UserResult);
+  getCourse: (id: text) -> (opt Course) query;
+  getCourses: () -> (vec Course) query;
+  getFeaturedCourses: () -> (vec Course) query;
   getMyProfile: () -> (UserResult) query;
   getUser: ("principal": Principal) -> (UserResult);
   health: () -> (text) query;
