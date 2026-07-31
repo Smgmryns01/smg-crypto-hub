@@ -1,13 +1,16 @@
-import { backend } from "./backend";
+import { getBackendActor } from "./backend";
 
 export async function getCourses() {
+  const backend = await getBackendActor();
   return await backend.getCourses();
 }
 
-export async function getCourse(id: string) {
-  return await backend.getCourse(id);
+export async function getFeaturedCourses() {
+  const backend = await getBackendActor();
+  return await backend.getFeaturedCourses();
 }
 
-export async function getFeaturedCourses() {
-  return await backend.getFeaturedCourses();
+export async function getCourse(id: string) {
+  const backend = await getBackendActor();
+  return await backend.getCourse(id);
 }

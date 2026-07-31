@@ -1,4 +1,5 @@
 import LoginForm from "@/components/forms/LoginForm";
+import InternetIdentityButton from "@/components/auth/InternetIdentityButton";
 
 export default function LoginPage() {
   return (
@@ -15,6 +16,16 @@ export default function LoginPage() {
         </div>
 
         <LoginForm />
+
+        <div className="my-6 flex items-center">
+          <div className="flex-1 border-t border-brand-border" />
+          <span className="mx-4 text-xs uppercase text-brand-muted">
+            Or
+          </span>
+          <div className="flex-1 border-t border-brand-border" />
+        </div>
+
+        <InternetIdentityButton />
       </div>
     </main>
   );
