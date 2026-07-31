@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
-import { Search, Filter } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Filter, Search } from "lucide-react";
+
 import { PageLayout } from "@/components/layout/PageLayout";
 import { CourseCard } from "@/components/ui/CourseCard";
 import { getCourses } from "@/lib/services/course.service";
-import type { CourseLevel, CourseCategory } from "@/types";
 import { cn } from "@/lib/utils";
+import type { CourseCategory, CourseLevel } from "@/types";
 
 const LEVELS: { value: CourseLevel | "all"; label: string }[] = [
   { value: "all", label: "All Levels" },
@@ -30,185 +31,173 @@ export default function AcademyPage() {
   const [search, setSearch] = useState("");
   const [level, setLevel] = useState<CourseLevel | "all">("all");
   const [category, setCategory] = useState<CourseCategory | "all">("all");
-  const [courses, setCourses] = useState<any[]>([]);
-const [loading, setLoading] = useState(true);
 
- useEffect(() => {
-  async function loadCourses() {
-    try {
-      const data = await getCourses();
-      setCourses(data);
-    } catch (error) {
-      console.error("Failed to load courses:", error);
-    } finally {
-      setLoading(false);
+  const [courses, setCourses] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    async function loadCourses() {
+      try {
+        setLoading(true);
+        const data = await getCourses();
+        setCourses(data);
+      } catch (err) {
+        console.error(err);
+        setError("Unable to load courses.");
+      } finally {
+        setLoading(false);
+      }
     }
+
+    loadCourses();
+  }, []);
+
+  const filtered = useMemo(() => {
+    return courses.filter((course) => {
+      const matchSearch =
+        search === "" ||
+        course.title.toLowerCase().includes(search.toLowerCase()) ||
+        course.description.toLowerCase().includes(search.toLowerCase());
+
+      const matchLevel =
+        level === "all" || course.level === level;
+
+      const matchCategory =
+        category === "all" || course.category === category;
+
+      return matchSearch && matchLevel && matchCategory;
+    });
+  }, [courses, search, level, category]);
+
+  if (loading) {
+    return (
+      <PageLayout>
+        <div className="pt-24 text-center">
+          <h2 className="text-xl text-brand-white">
+            Loading courses...
+          </h2>
+        </div>
+      </PageLayout>
+    );
   }
 
-  loadCourses();
-}, []);
-
-const filtered = useMemo(() => {
-  return courses.filter((course) => {
-    const matchSearch =
-      search === "" ||
-      course.title.toLowerCase().includes(search.toLowerCase()) ||
-      course.description.toLowerCase().includes(search.toLowerCase());
-
-    const matchLevel =
-      level === "all" || course.level === level;
-
-    const matchCategory =
-      category === "all" || course.category === category;
-
-    return matchSearch && matchLevel && matchCategory;
-  });
-}, [courses, search, level, category]);
-
-if (loading) {
-  return (
-    <PageLayout>
-      <div className="pt-24 text-center">
-        <h2 className="text-xl text-brand-white">
-          Loading courses...
-        </h2>
-      </div>
-    </PageLayout>
-  );
-}
+  if (error) {
+    return (
+      <PageLayout>
+        <div className="pt-24 text-center">
+          <h2 className="text-xl text-red-500">{error}</h2>
+        </div>
+      </PageLayout>
+    );
+  }
 
   return (
     <PageLayout>
       <div className="pt-24 pb-20 px-4">
         <div className="container-wide">
-          {/* Header */}
+
           <div className="mb-12 text-center">
-            <div className="badge-blue mb-4 mx-auto w-fit">Academy</div>
-            <h1 className="font-display text-display-lg font-extrabold text-brand-white text-balance">
+            <div className="badge-blue mb-4 mx-auto w-fit">
+              Academy
+            </div>
+
+            <h1 className="font-display text-display-lg font-extrabold text-brand-white">
               Web3 <span className="gradient-text">Learning Paths</span>
             </h1>
-            <p className="mt-4 text-brand-muted max-w-2xl mx-auto text-balance">
-              Structured courses from absolute beginner to advanced ICP developer.
-              Free to start. Earn verifiable certificates. Build real skills.
+
+            <p className="mt-4 text-brand-muted max-w-2xl mx-auto">
+              Structured courses from beginner to advanced ICP developer.
             </p>
           </div>
 
-          {/* Search & Filters */}
           <div className="mb-8 space-y-4">
-            {/* Search */}
+
             <div className="relative max-w-xl mx-auto">
               <Search
-                className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-brand-muted pointer-events-none"
-                aria-hidden="true"
+                className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-brand-muted"
               />
+
               <input
-                type="search"
-                placeholder="Search courses, topics, or tags..."
+                className="input pl-11"
+                placeholder="Search courses..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="input pl-11"
-                aria-label="Search courses"
               />
             </div>
 
-            {/* Filter tabs */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              {/* Level filter */}
-              <fieldset>
-                <legend className="sr-only">Filter by difficulty level</legend>
-                <div className="flex items-center gap-2 flex-wrap justify-center" role="group">
-                  <Filter className="h-4 w-4 text-brand-muted shrink-0" aria-hidden="true" />
-                  {LEVELS.map(({ value, label }) => (
-                    <button
-                      key={value}
-                      onClick={() => setLevel(value)}
-                      className={cn(
-                        "rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200",
-                        level === value
-                          ? "bg-brand-blue text-white"
-                          : "border border-brand-border text-brand-muted hover:text-brand-white hover:border-brand-blue/50"
-                      )}
-                      aria-pressed={level === value}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-              </fieldset>
-            </div>
+            <div className="flex flex-wrap justify-center gap-2">
+              <Filter className="h-4 w-4 text-brand-muted mt-2" />
 
-            {/* Category filter */}
-            <div className="flex flex-wrap justify-center gap-2" role="group" aria-label="Filter by topic">
-              {CATEGORIES.map(({ value, label }) => (
+              {LEVELS.map(({ value, label }) => (
                 <button
                   key={value}
-                  onClick={() => setCategory(value)}
+                  onClick={() => setLevel(value)}
                   className={cn(
-                    "rounded-lg px-3 py-1.5 text-xs font-medium transition-all duration-200",
-                    category === value
-                      ? "bg-brand-card border border-brand-blue/50 text-brand-blue"
-                      : "border border-brand-border text-brand-muted hover:text-brand-white"
+                    "rounded-lg px-4 py-2 text-sm",
+                    level === value
+                      ? "bg-brand-blue text-white"
+                      : "border border-brand-border text-brand-muted"
                   )}
-                  aria-pressed={category === value}
                 >
                   {label}
                 </button>
               ))}
             </div>
+
+            <div className="flex flex-wrap justify-center gap-2">
+              {CATEGORIES.map(({ value, label }) => (
+                <button
+                  key={value}
+                  onClick={() => setCategory(value)}
+                  className={cn(
+                    "rounded-lg px-3 py-1.5 text-xs",
+                    category === value
+                      ? "bg-brand-card border border-brand-blue text-brand-blue"
+                      : "border border-brand-border text-brand-muted"
+                  )}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+
           </div>
 
-
-          {/* Results count */}
-          <p className="text-sm text-brand-muted mb-6" aria-live="polite">
+          <p className="mb-6 text-sm text-brand-muted">
             {filtered.length} course{filtered.length !== 1 ? "s" : ""} found
           </p>
 
-          {/* Course Grid */}
           {filtered.length > 0 ? (
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {filtered.map((course) => (
-                <CourseCard key={course.id} course={course} />
+                <CourseCard
+                  key={course.id}
+                  course={course}
+                />
               ))}
             </div>
           ) : (
-            <div className="text-center py-24 rounded-2xl border border-brand-border bg-brand-card/30">
-              <Search className="h-10 w-10 text-brand-muted mx-auto mb-4" aria-hidden="true" />
-              <h3 className="font-display text-lg font-semibold text-brand-white mb-2">
+            <div className="rounded-2xl border border-brand-border bg-brand-card/30 py-24 text-center">
+              <Search className="mx-auto mb-4 h-10 w-10 text-brand-muted" />
+
+              <h3 className="font-display text-lg text-brand-white">
                 No courses found
               </h3>
-              <p className="text-sm text-brand-muted">
-                Try adjusting your search or filters.
-              </p>
+
               <button
-                onClick={() => { setSearch(""); setLevel("all"); setCategory("all"); }}
-                className="mt-4 btn-ghost text-sm"
+                className="btn-ghost mt-4"
+                onClick={() => {
+                  setSearch("");
+                  setLevel("all");
+                  setCategory("all");
+                }}
               >
-                Clear all filters
+                Clear filters
               </button>
             </div>
           )}
 
-          {/* Coming Soon notice */}
-          <div className="mt-16 rounded-2xl border border-brand-gold/20 bg-brand-gold/5 p-8 text-center">
-            <span className="badge-gold mb-4 mx-auto w-fit block">📅 Milestone 2</span>
-            <h3 className="font-display text-lg font-semibold text-brand-white mb-2">
-              Course content activates at Milestone 2
-            </h3>
-            <p className="text-sm text-brand-muted max-w-lg mx-auto">
-              The course structure, categories, and enrollment system are built.
-              Full lesson content and progress tracking arrive at Milestone 2 (v0.2.0).
-              Follow{" "}
-              <a
-                href="https://t.me/SMGCryptohHubChannel"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-brand-blue hover:text-brand-blue-glow"
-              >
-                @smgcryptohub
-              </a>{" "}
-              on Telegram for updates.
-            </p>
-          </div>
         </div>
       </div>
     </PageLayout>
