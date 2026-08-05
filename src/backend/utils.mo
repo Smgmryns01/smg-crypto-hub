@@ -1,11 +1,15 @@
 import Text "mo:base/Text";
 import Time "mo:base/Time";
+import Config "config";
 import Principal "mo:base/Principal";
 import TrieMap "mo:base/TrieMap";
 import Iter "mo:base/Iter";
 import Types "types";
 
 module {
+
+
+
   public type User = Types.User;
   public type Role = Types.Role;
   public type UserResult<T> = Types.UserResult<T>;
@@ -14,12 +18,25 @@ module {
     Time.now()
   };
 
-  public func isAdmin(caller : Principal.Principal, user : ?User) : Bool {
-    switch (user) {
-      case (?u) { switch (u.role) { case (#Admin) true; case _ false } };
-      case null false;
-    }
+ public func isAdmin(
+  caller : Principal.Principal,
+  user : ?Types.User
+) : Bool {
+
+  if (Principal.toText(caller) == Config.FOUNDER_PRINCIPAL) {
+    return true;
   };
+
+  switch (user) {
+    case (?u) {
+      u.role == #Admin
+    };
+
+    case null {
+      false
+    };
+  }
+};
 
   public func normalizeUsername(username : Text) : Text {
     username

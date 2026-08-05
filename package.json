@@ -31,6 +31,7 @@
     "generate": "dfx generate backend"
   },
   "dependencies": {
+    "@dfinity/auth-client": "^3.4.3",
     "@hookform/resolvers": "^3.9.0",
     "@icp-sdk/core": "^6.0.0",
     "@radix-ui/react-accordion": "^1.2.1",

@@ -20,6 +20,53 @@ type Role =
    Student;
  };
 type Principal = principal;
+type MentorStatus = 
+ variant {
+   Approved;
+   Pending;
+   Rejected;
+ };
+type MentorResult = 
+ variant {
+   err: text;
+   ok: Mentor;
+ };
+type Mentor = 
+ record {
+   bio: text;
+   createdAt: int;
+   expertise: text;
+   "principal": Principal;
+   status: MentorStatus;
+   updatedAt: int;
+   username: text;
+ };
+type EnrollmentResult = 
+ variant {
+   err: text;
+   ok: Enrollment;
+ };
+type Enrollment = 
+ record {
+   completed: bool;
+   completedAt: opt int;
+   completedLessons: vec text;
+   courseId: text;
+   enrolledAt: int;
+   lastLesson: opt text;
+   progress: nat;
+   student: Principal;
+   updatedAt: int;
+ };
+type DashboardStats = 
+ record {
+   pendingMentors: nat;
+   totalCertificates: nat;
+   totalCourses: nat;
+   totalEnrollments: nat;
+   totalMentors: nat;
+   totalUsers: nat;
+ };
 type CourseLevel = 
  variant {
    Advanced;
@@ -52,19 +99,50 @@ type Course =
    title: text;
    updatedAt: int;
  };
+type CertificateResult = 
+ variant {
+   err: text;
+   ok: Certificate;
+ };
+type Certificate = 
+ record {
+   completedAt: int;
+   courseId: text;
+   courseTitle: text;
+   id: text;
+   issuedAt: int;
+   issuer: text;
+   student: Principal;
+   verified: bool;
+ };
 service : {
+  addAdmin: ("principal": Principal) -> (bool);
+  approveMentor: ("principal": Principal) -> (MentorResult);
+  becomeMentor: (bio: text, expertise: text) -> (MentorResult);
   changeUserRole: ("principal": Principal, role: Role) -> (UserResult);
+  completeLesson: (courseId: text, lessonId: text, totalLessons: nat) ->
+   (EnrollmentResult);
   deleteUser: ("principal": Principal) -> (UserResult);
   getCourse: (id: text) -> (opt Course) query;
   getCourses: () -> (vec Course) query;
+  getDashboardStats: () -> (DashboardStats) query;
   getFeaturedCourses: () -> (vec Course) query;
   getMyProfile: () -> (UserResult) query;
+  getMyProgress: (courseId: text) -> (opt Enrollment) query;
   getUser: ("principal": Principal) -> (UserResult);
   health: () -> (text) query;
+  issueCertificate: (courseId: text) -> (CertificateResult);
+  listAdmins: () -> (vec Principal) query;
+  listMentors: () -> (vec Mentor) query;
+  listPendingMentors: () -> (vec Mentor);
   listUsers: () -> (vec User);
+  myMentorProfile: () -> (opt Mentor) query;
   registerUser: (username: text, email: text) -> (UserResult);
+  rejectMentor: ("principal": Principal) -> (MentorResult);
+  removeAdmin: ("principal": Principal) -> (bool);
   updateProfile: (username: text) -> (UserResult);
   userExists: () -> (bool) query;
+  verifyCertificate: (certificateId: text) -> (bool) query;
   verifyEmail: () -> (UserResult);
   version: () -> (text) query;
 }

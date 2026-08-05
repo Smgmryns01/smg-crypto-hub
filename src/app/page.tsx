@@ -8,6 +8,7 @@ import { Partners } from "@/components/sections/Partners";
 import { RoadmapPreview } from "@/components/sections/RoadmapPreview";
 import { CommunityCTA } from "@/components/sections/CommunityCTA";
 import { SITE } from "@/constants/site";
+import TestBackend from "@/components/TestBackend";
 
 export const metadata: Metadata = {
   title: `${SITE.name} — ${SITE.tagline}`,
@@ -18,6 +19,8 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <PageLayout>
+      <TestBackend />
+      
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 btn-primary text-sm"

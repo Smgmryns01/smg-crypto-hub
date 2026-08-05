@@ -183,4 +183,14 @@ module {
       };
     }
   };
+
+public func findUser(
+  users : TrieMap.TrieMap<Principal.Principal, User>,
+  principal : Principal.Principal
+) : ?User {
+
+  users.get(principal)
+
+};
+
 }
