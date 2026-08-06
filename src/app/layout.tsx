@@ -1,3 +1,4 @@
+import { IcpAuthProvider } from "@/providers/IcpAuthProvider";
 import type { Metadata, Viewport } from "next";
 import { Inter, Sora, JetBrains_Mono } from "next/font/google";
 import { Toaster } from "sonner";
