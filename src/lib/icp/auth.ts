@@ -1,89 +1,36 @@
-import { AuthClient } from "@dfinity/auth-client";
-import type { Identity } from "@dfinity/agent";
+"use client";
 
-import { II_URL, IDLE_TIMEOUT_MS } from "./config";
-import { resetAgent } from "./client";
+import { AuthClient } from "@icp-sdk/auth/client";
+import type { Identity } from "@icp-sdk/core/agent";
 
 let authClient: AuthClient | null = null;
 
-/**
- * Returns a singleton AuthClient.
- */
-export async function createAuthClient(): Promise<AuthClient> {
-  if (authClient) {
-    return authClient;
+function getAuthClient(): AuthClient {
+  if (authClient === null) {
+    authClient = new AuthClient();
   }
-
-  authClient = await AuthClient.create({
-    idleOptions: {
-      idleTimeout: IDLE_TIMEOUT_MS,
-      disableDefaultIdleCallback: true,
-    },
-  });
 
   return authClient;
 }
 
 /**
- * Login with Internet Identity.
+ * Returns the current Internet Identity.
  */
-export async function login(): Promise<void> {
-  const client = await createAuthClient();
-
-  return new Promise((resolve, reject) => {
-    client.login({
-      identityProvider: II_URL,
-
-      onSuccess: () => {
-  resetAgent();
-  resolve();
-},
-
-      onError: (error) => {
-        reject(error ?? new Error("Internet Identity login failed."));
-      },
-    });
-  });
+export async function getIdentity(): Promise<Identity> {
+  const client = getAuthClient();
+  return client.getIdentity();
 }
 
 /**
- * Alias kept for backwards compatibility.
- */
-export async function loginWithInternetIdentity(): Promise<void> {
-  return login();
-}
-
-/**
- * Logout current user.
- */
-export async function logout(): Promise<void> {
-  const client = await createAuthClient();
-
-  await client.logout();
-
-  resetAgent();
-}
-
-/**
- * Returns true if user is authenticated.
+ * Returns whether the current session is authenticated.
  */
 export async function isAuthenticated(): Promise<boolean> {
-  const client = await createAuthClient();
-
+  const client = getAuthClient();
   return client.isAuthenticated();
 }
 
 /**
- * Returns current Identity.
- */
-export async function getIdentity(): Promise<Identity> {
-  const client = await createAuthClient();
-
-  return client.getIdentity()
-}
-
-/**
- * Returns current Principal as text.
+ * Returns the current authenticated Principal as text.
  */
 export async function getPrincipal(): Promise<string | null> {
   const authenticated = await isAuthenticated();
@@ -93,6 +40,30 @@ export async function getPrincipal(): Promise<string | null> {
   }
 
   const identity = await getIdentity();
-
   return identity.getPrincipal().toText();
+}
+
+/**
+ * Sign in with Internet Identity.
+ */
+export async function login(): Promise<Identity> {
+  const client = getAuthClient();
+
+  return client.signIn();
+}
+
+/**
+ * Backwards-compatible alias.
+ */
+export async function loginWithInternetIdentity(): Promise<Identity> {
+  return login();
+}
+
+/**
+ * Sign out from Internet Identity.
+ */
+export async function logout(): Promise<void> {
+  const client = getAuthClient();
+
+  await client.signOut();
 }

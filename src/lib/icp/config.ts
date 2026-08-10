@@ -8,7 +8,7 @@
 // ------------------------------
 
 export const ICP_HOST =
-  process.env.NEXT_PUBLIC_ICP_HOST ??
+  process.env.NEXT_PUBLIC_IC_HOST ??
   "https://icp-api.io";
 
 export const II_URL =

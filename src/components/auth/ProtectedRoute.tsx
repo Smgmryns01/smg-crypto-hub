@@ -3,31 +3,33 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-import { useAuth } from "@/context/AuthContext";
+import { useIcp } from "@/context/IcpContext";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
 }
 
-export default function ProtectedRoute({ children }: ProtectedRouteProps) {
+export default function ProtectedRoute({
+  children,
+}: ProtectedRouteProps) {
   const router = useRouter();
-  const { user, loading, isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useIcp();
 
   useEffect(() => {
-    if (!loading && !isAuthenticated) {
+    if (!isLoading && !isAuthenticated) {
       router.replace("/login");
     }
-  }, [loading, isAuthenticated, router]);
+  }, [isLoading, isAuthenticated, router]);
 
-  if (loading) {
+  if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-brand-black text-white">
+      <div className="flex min-h-screen items-center justify-center">
         <p>Loading...</p>
       </div>
     );
   }
 
-  if (!user || !isAuthenticated) {
+  if (!isAuthenticated) {
     return null;
   }
 

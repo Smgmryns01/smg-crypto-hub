@@ -6,8 +6,11 @@ import { usePathname } from "next/navigation";
 import { Menu, X, ChevronDown, ExternalLink, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SITE, NAVIGATION } from "@/constants/site";
+import { useIcp } from "@/context/IcpContext";
 
 export function Navbar() {
+const { disconnect, isAuthenticated, principal } = useIcp();
+
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
@@ -146,9 +149,31 @@ export function Navbar() {
               GitHub
               <ExternalLink className="h-3 w-3" aria-hidden="true" />
             </Link>
-            <Link href="/academy" className="btn-primary text-xs px-4 py-2">
-              Start Learning
-            </Link>
+            {isAuthenticated ? (
+  <>
+    <Link
+      href="/dashboard"
+      className="btn-primary text-xs px-4 py-2"
+    >
+      Dashboard
+    </Link>
+
+    <button
+      type="button"
+      onClick={() => void disconnect()}
+      className="btn-ghost text-xs"
+    >
+      Logout
+    </button>
+  </>
+) : (
+  <Link
+    href="/academy"
+    className="btn-primary text-xs px-4 py-2"
+  >
+    Start Learning
+  </Link>
+)}
           </div>
 
           {/* Mobile toggle */}

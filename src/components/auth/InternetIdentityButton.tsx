@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Fingerprint } from "lucide-react";
 
@@ -8,12 +9,14 @@ import { useIcp } from "@/context/IcpContext";
 
 export default function InternetIdentityButton() {
   const { connect, isAuthenticated, isLoading, principal } = useIcp();
+  const router = useRouter();
   const [isConnecting, setIsConnecting] = useState(false);
 
   const handleConnect = async () => {
     setIsConnecting(true);
     try {
       await connect();
+      router.replace("/dashboard");
     } finally {
       setIsConnecting(false);
     }

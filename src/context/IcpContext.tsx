@@ -1,7 +1,11 @@
 "use client";
 
+import { resetAgent } from "@/lib/icp/client";
+import { getBackend, resetBackend } from "@/lib/icp/backend";
+import { useRouter } from "next/navigation";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { syncCurrentUser } from "@/lib/icp/user";
 
 import {
   getIdentity,
@@ -30,6 +34,8 @@ export function IcpProvider({ children }: { children: React.ReactNode }) {
   const [principal, setPrincipal] = useState<string | null>(null);
   const [status, setStatus] = useState<IcpStatus>("idle");
 
+ const router = useRouter();
+
   const restoreSession = useCallback(async () => {
     setIsLoading(true);
 
@@ -49,6 +55,19 @@ export function IcpProvider({ children }: { children: React.ReactNode }) {
       setIsAuthenticated(connected);
       setPrincipal(resolvedPrincipal);
       setStatus(connected ? "connected" : "idle");
+      if (connected) {
+  const backend = await getBackend();
+
+  const exists = await backend.userExists();
+
+  if (exists) {
+    router.push("/dashboard");
+  } else {
+    router.push("/register");
+  }
+}
+
+
     } catch (error) {
       setIsAuthenticated(false);
       setPrincipal(null);
@@ -64,37 +83,65 @@ export function IcpProvider({ children }: { children: React.ReactNode }) {
   }, [restoreSession]);
 
   const connect = useCallback(async () => {
-    setStatus("connecting");
-    setIsLoading(true);
+  setStatus("connecting");
+  setIsLoading(true);
 
-    try {
-      await loginWithInternetIdentity();
-      const resolvedPrincipal = await getPrincipal();
+  try {
+    await loginWithInternetIdentity();
 
-      if (!resolvedPrincipal) {
-        throw new Error("No principal was returned after Internet Identity authentication.");
-      }
+    const resolvedPrincipal = await getPrincipal();
 
-      setIsAuthenticated(true);
-      setPrincipal(resolvedPrincipal);
-      setStatus("connected");
-      toast.success("Connected with Internet Identity");
-    } catch (error) {
-      setIsAuthenticated(false);
-      setPrincipal(null);
-      setStatus("error");
-      toast.error(error instanceof Error ? error.message : "Unable to connect with Internet Identity.");
-    } finally {
-      setIsLoading(false);
+    if (!resolvedPrincipal) {
+      throw new Error(
+        "No principal was returned after Internet Identity authentication."
+      );
     }
-  }, []);
+
+    setIsAuthenticated(true);
+    setPrincipal(resolvedPrincipal);
+    setStatus("connected");
+
+    const backend = await getBackend();
+    const exists = await backend.userExists();
+
+    if (exists) {
+      router.replace("/dashboard");
+    } else {
+      router.replace("/register");
+    }
+
+    toast.success("Connected with Internet Identity");
+  } catch (error) {
+    setIsAuthenticated(false);
+    setPrincipal(null);
+    setStatus("error");
+
+    console.error(
+      "Internet Identity connection failed:",
+      error
+    );
+
+    toast.error(
+      error instanceof Error
+        ? error.message
+        : "Unable to connect with Internet Identity."
+    );
+  } finally {
+    setIsLoading(false);
+  }
+}, [router]);
 
   const disconnect = useCallback(async () => {
     try {
       await logoutIcp();
+
+      resetAgent();
+      resetBackend();
+
       setIsAuthenticated(false);
       setPrincipal(null);
       setStatus("idle");
+      
       toast.success("Internet Identity session cleared.");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Unable to clear Internet Identity session.");
